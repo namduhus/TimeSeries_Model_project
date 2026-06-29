@@ -1,0 +1,13 @@
+target_name,model_family,model_name,true_positive,false_negative,false_positive,true_negative,precision,eol_detection_rate,specificity,false_alarm_rate,rul_detected_count,rul_mae_detected,rul_rmse_detected,rul_bias_detected,early_warning_count,late_warning_count,exact_warning_count
+capacity_ewm_span_9,target_improvement_ml,MovingAverage,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_ewm_span_9,target_improvement_ml,Persistence,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_ewm_span_9,target_improvement_ml,RandomForestRegressor,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_ewm_span_9,target_improvement_ml,RidgeRegression,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_raw,target_improvement_ml,MovingAverage,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_raw,target_improvement_ml,Persistence,1,2,0,12,1.0,0.3333333333333333,1.0,0.0,1,29.0,29.0,-29.0,1,0,0
+capacity_raw,target_improvement_ml,RandomForestRegressor,2,1,0,12,1.0,0.6666666666666666,1.0,0.0,2,4.0,4.123105625617661,-4.0,2,0,0
+capacity_raw,target_improvement_ml,RidgeRegression,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_roll_median_7,target_improvement_ml,MovingAverage,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_roll_median_7,target_improvement_ml,Persistence,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_roll_median_7,target_improvement_ml,RandomForestRegressor,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0
+capacity_roll_median_7,target_improvement_ml,RidgeRegression,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0

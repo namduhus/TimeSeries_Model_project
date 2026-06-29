@@ -1,0 +1,16 @@
+scenario_id,scenario_type,target_name,model_family,model_name,forecast_origin,horizon,capacity_mae,capacity_rmse,capacity_smape,includes_eol,true_eol_cycle,true_rul
+eol_o516_lead30_h34,eol_crossing,capacity_raw,machine_learning,RandomForestRegressor,516,34,0.011229107288734644,0.022720122490308275,0.012414661498601206,True,546,30
+eol_o526_lead20_h24,eol_crossing,capacity_raw,machine_learning,RandomForestRegressor,526,24,0.0066609762051817135,0.008579079188900591,0.007267067389463917,True,546,20
+eol_o536_lead10_h14,eol_crossing,capacity_raw,machine_learning,RandomForestRegressor,536,14,0.005478773224567667,0.00713956651794855,0.00599463206271598,True,546,10
+pre_01_o182_h10,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,182,10,0.025846867044804423,0.029119495420709806,0.025821730424001876,False,546,364
+pre_01_o182_h20,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,182,20,0.03353073976439222,0.03613842055581397,0.0337433841872025,False,546,364
+pre_01_o182_h30,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,182,30,0.04729230917388364,0.05397078758572882,0.047461096083271315,False,546,364
+pre_02_o292_h10,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,292,10,0.005652311904479091,0.006547262805600988,0.0057585417780592315,False,546,254
+pre_02_o292_h20,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,292,20,0.005319439851067809,0.006760486203468279,0.005423873104477613,False,546,254
+pre_02_o292_h30,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,292,30,0.005177212524742902,0.006209865459951975,0.0052682047528217835,False,546,254
+pre_03_o403_h10,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,403,10,0.00036403558693282045,0.00040248611521232554,0.00036934372406935477,False,546,143
+pre_03_o403_h20,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,403,20,0.004882504878891619,0.007297320825671842,0.004929885741995222,False,546,143
+pre_03_o403_h30,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,403,30,0.005451183290590944,0.007377811389549793,0.005506321935989839,False,546,143
+pre_04_o515_h10,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,515,10,0.027328891897314588,0.057470870418040006,0.031160636439314448,False,546,31
+pre_04_o515_h20,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,515,20,0.019461051495536043,0.041659160109539746,0.021808726121800983,False,546,31
+pre_04_o515_h30,pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,515,30,0.019910176272131843,0.03620551413431235,0.022022891124146775,False,546,31

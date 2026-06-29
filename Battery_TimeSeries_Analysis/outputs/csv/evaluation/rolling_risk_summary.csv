@@ -1,0 +1,16 @@
+scenario_id,scenario_type,forecast_origin,origin_soh,origin_risk_level,origin_below_threshold,true_rul,true_event_in_horizon
+eol_o516_lead30_h34,eol_crossing,516,0.7123089441503537,critical,True,30,True
+eol_o526_lead20_h24,eol_crossing,526,0.8175803082009887,warning,False,20,True
+eol_o536_lead10_h14,eol_crossing,536,0.8150680958653643,warning,False,10,True
+pre_01_o182_h10,pre_eol_rolling,182,0.8929011173337872,warning,False,364,False
+pre_01_o182_h20,pre_eol_rolling,182,0.8929011173337872,warning,False,364,False
+pre_01_o182_h30,pre_eol_rolling,182,0.8929011173337872,warning,False,364,False
+pre_02_o292_h10,pre_eol_rolling,292,0.8613873022929852,warning,False,254,False
+pre_02_o292_h20,pre_eol_rolling,292,0.8613873022929852,warning,False,254,False
+pre_02_o292_h30,pre_eol_rolling,292,0.8613873022929852,warning,False,254,False
+pre_03_o403_h10,pre_eol_rolling,403,0.8669211148537969,warning,False,143,False
+pre_03_o403_h20,pre_eol_rolling,403,0.8669211148537969,warning,False,143,False
+pre_03_o403_h30,pre_eol_rolling,403,0.8669211148537969,warning,False,143,False
+pre_04_o515_h10,pre_eol_rolling,515,0.825655896996936,warning,False,31,False
+pre_04_o515_h20,pre_eol_rolling,515,0.825655896996936,warning,False,31,False
+pre_04_o515_h30,pre_eol_rolling,515,0.825655896996936,warning,False,31,False

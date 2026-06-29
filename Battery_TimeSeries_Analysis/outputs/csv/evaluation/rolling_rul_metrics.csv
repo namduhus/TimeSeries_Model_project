@@ -1,0 +1,10 @@
+model_family,model_name,true_positive,false_negative,false_positive,true_negative,precision,eol_detection_rate,specificity,false_alarm_rate,rul_detected_count,rul_mae_detected,rul_rmse_detected,rul_bias_detected,early_warning_count,late_warning_count,exact_warning_count,q10_detection_rate,q50_detection_rate,q90_detection_rate,rul_interval_count,rul_interval_coverage
+deep_learning,PatchTST,1,2,0,12,1.0,0.3333333333333333,1.0,0.0,1,19.0,19.0,-19.0,1,0,0,1.0,0.3333333333333333,0.0,0,
+baseline,LinearTrend,1,2,0,12,1.0,0.3333333333333333,1.0,0.0,1,27.0,27.0,-27.0,1,0,0,,,,0,
+baseline,Persistence,1,2,0,12,1.0,0.3333333333333333,1.0,0.0,1,29.0,29.0,-29.0,1,0,0,,,,0,
+foundation_model,ChronosBolt_Base,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,1.0,0.0,0.0,0,
+baseline,MovingAverage,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,,,,0,
+deep_learning,NHITS,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,0.0,0.0,0.0,0,
+machine_learning,RandomForestRegressor,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,,,,0,
+machine_learning,RidgeRegression,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,,,,0,
+foundation_model,TimesFM_2p5_200M,0,3,0,12,,0.0,1.0,0.0,0,,,,0,0,0,1.0,0.0,0.0,0,

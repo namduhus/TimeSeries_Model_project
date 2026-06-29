@@ -1,0 +1,3 @@
+scenario_type,target_name,model_family,model_name,scenario_count,capacity_mae,capacity_rmse,capacity_smape
+eol_crossing,capacity_raw,machine_learning,RandomForestRegressor,3,0.007789618906161341,0.012812922732385804,0.0085587869835937
+pre_eol_rolling,capacity_raw,machine_learning,RandomForestRegressor,12,0.016684726973730662,0.024096623418633323,0.017439552951429245

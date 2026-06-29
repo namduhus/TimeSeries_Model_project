@@ -1,0 +1,3 @@
+experiment_name,model_family,primary_target,model_name,capacity_mae,capacity_rmse,capacity_smape,soh_mae,soh_rmse,soh_smape,n,train_end_cycle
+pre_eol_70_split,foundation_model,capacity_ah,ChronosBolt_Base,0.0237616861459308,0.0320683751510739,2.4989185784378387,0.0209092106382456,0.028218734205643,2.498918855882833,163,381
+post_eol_75_split,foundation_model,capacity_ah,ChronosBolt_Base,0.2330718866794699,0.2711667211342236,34.94597555023529,0.205092743449576,0.2386144695168729,34.94597971895414,217,657
