@@ -1,6 +1,6 @@
-# Battery Predictive Maintenance Dashboard
+# Battery Predictive Maintenance Analysis
 
-CALCE Li-ion battery aging 데이터를 사용해 배터리 capacity fade, SoH, EOL, RUL을 분석하고 예지보전 의사결정 대시보드로 보여주는 시계열 예측 프로젝트입니다.
+CALCE Li-ion battery aging 데이터를 사용해 배터리 capacity fade, SoH, EOL, RUL을 분석하고 예지보전 의사결정으로 연결하는 시계열 예측 프로젝트입니다.
 
 이 프로젝트는 단순히 capacity를 예측하는 것보다, 예측 결과를 정비 의사결정에 연결하는 것을 목표로 합니다.
 
@@ -17,11 +17,19 @@ capacity forecast -> predicted SoH -> predicted EOL -> predicted RUL -> risk dec
 | Primary Target | `capacity_ah` |
 | Derived Signals | SoH, EOL cycle, RUL, risk level |
 | Final Model | `capacity_raw + RandomForestRegressor` |
-| Dashboard | Streamlit |
+| Optional Viewer | Streamlit |
 
 데이터 출처는 [CALCE Battery Data](https://calce.umd.edu/battery-data)입니다.
 
-현재 구현은 `CS2_35` 단일 셀을 기준으로 구성했습니다. 원본 25개 Excel 파일 중 fingerprint 기준 중복 파일 1개를 제외하고, 24개 고유 파일에서 cycle-level 데이터를 생성했습니다.
+### Dataset Citation
+
+CALCE CS2 Battery data 사용 시 다음 관련 논문을 함께 참고합니다.
+
+- Wei He, Nicholas Williard, Michael Osterman, Michael Pecht, "Prognostics of lithium-ion batteries based on Dempster-Shafer theory and the Bayesian Monte Carlo method," Journal of Power Sources, 196(23), pp. 10314-10321, 2011.
+- Yinjiao Xing, Eden Ma, Kwok Leung Tsui, Michael Pecht, "An Ensemble Model for Predicting the Remaining Useful Performance of Lithium-ion Batteries," Microelectronics Reliability, 53(6), pp. 811-820, 2013.
+- Nick Williard, Wei He, Michael Osterman, Michael Pecht, "Comparative Analysis of Features for Determining State of Health in Lithium-Ion Batteries," International Journal of Prognostics and Health Management, 4, pp. 1-7, 2013.
+
+현재 구현은 `CS2_35` 데이터를 기준으로 구성했습니다. 원본 25개 Excel 파일 중 fingerprint 기준 중복 파일 1개를 제외하고, 24개 고유 파일에서 cycle-level 데이터를 생성했습니다.
 
 ## 2. Key Results
 
@@ -111,7 +119,7 @@ CALCE raw Excel
 -> model comparison
 -> target improvement experiment
 -> final RandomForest pipeline
--> Streamlit dashboard
+-> optional Streamlit viewer
 ```
 
 주요 처리 기준은 다음과 같습니다.
@@ -138,7 +146,7 @@ CALCE raw Excel
 | Foundation Model | TimesFM 2.5 200M, Chronos-Bolt |
 | Deep Learning | NHITS, PatchTST |
 
-Foundation model과 deep learning model은 비교군으로 사용했습니다. 최종 대시보드 pipeline은 08번 개선 실험에서 가장 의사결정 성능이 좋았던 `capacity_raw + RandomForestRegressor`를 사용합니다.
+Foundation model과 deep learning model은 비교군으로 사용했습니다. 최종 분석 pipeline은 08번 개선 실험에서 가장 의사결정 성능이 좋았던 `capacity_raw + RandomForestRegressor`를 사용합니다.
 
 ## 6. Project Structure
 
@@ -195,7 +203,7 @@ outputs/csv/evaluation/final/
 outputs/parquet/evaluation/final/
 ```
 
-### Streamlit Dashboard
+### Optional Streamlit Viewer
 
 ```bash
 uv run streamlit run app/streamlit_app.py
@@ -207,11 +215,11 @@ uv run streamlit run app/streamlit_app.py
 http://localhost:8501
 ```
 
-대시보드는 모델을 실시간으로 학습하지 않고, final artifact를 읽어서 시각화합니다.
+Streamlit viewer는 모델을 실시간으로 학습하지 않고, final artifact를 읽어서 결과를 확인하는 보조 도구입니다.
 
-## 8. Dashboard Features
+## 8. Optional Viewer
 
-Streamlit 대시보드는 다음 기능을 제공합니다.
+Streamlit viewer는 다음 결과를 확인할 수 있습니다.
 
 | Area | Description |
 | --- | --- |
@@ -225,7 +233,7 @@ Streamlit 대시보드는 다음 기능을 제공합니다.
 
 ## 9. Main Artifacts
 
-대시보드가 읽는 최종 artifact는 다음과 같습니다.
+최종 분석과 optional viewer가 사용하는 artifact는 다음과 같습니다.
 
 ```text
 data/processed/paraquet/battery_cycles_labeled.parquet
@@ -234,14 +242,12 @@ outputs/csv/evaluation/final/final_rf_rul_predictions.csv
 outputs/csv/evaluation/final/final_rf_decision_leaderboard.csv
 ```
 
-CSV는 사람이 확인하기 위한 파일이며, Parquet은 pipeline과 대시보드에서 빠르게 읽기 위한 파일입니다.
+CSV는 사람이 확인하기 위한 파일이며, Parquet은 pipeline과 viewer에서 빠르게 읽기 위한 파일입니다.
 
-## 10. Notes and Limitations
+## 10. Final Result
 
-현재 결과는 `CS2_35` 단일 셀 기준입니다. 여러 셀을 추가하면 모델 일반화 성능과 셀 간 열화 차이를 더 엄밀하게 평가할 수 있습니다.
+최종 모델은 `capacity_raw + RandomForestRegressor`로 선정했습니다.
 
-Smoothing target은 Pre-EOL trend 안정화에는 도움이 되었지만, EOL/RUL 탐지에서는 threshold crossing 신호를 약하게 만들어 최종 target으로 채택하지 않았습니다.
+이 모델은 EOL crossing 3개 scenario 중 2개를 탐지했으며, false alarm 없이 66.67%의 EOL detection rate를 보였습니다. 탐지된 case 기준 RUL MAE는 4.0 cycles입니다.
 
-TimesFM, Chronos-Bolt, NHITS, PatchTST에 대한 추가 smoothing/tuning 실험은 후속 개선 과제로 남겼습니다.
-
-이 README는 배터리 열화 예지보전 프로젝트의 실행 방법과 핵심 결과를 정리한 Markdown 파일입니다.
+따라서 본 프로젝트는 단순 capacity 예측보다, 예측 결과를 SoH, EOL, RUL, risk decision으로 연결해 배터리 예지보전 의사결정에 활용할 수 있음을 확인했습니다.
