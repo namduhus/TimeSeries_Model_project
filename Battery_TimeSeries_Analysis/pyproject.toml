@@ -20,3 +20,8 @@ dependencies = [
     "streamlit>=1.58.0",
     "watchdog>=6.0.0",
 ]
+
+[tool.uv.workspace]
+members = [
+    "Algae-early-warning-OSS",
+]
