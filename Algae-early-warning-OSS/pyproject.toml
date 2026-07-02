@@ -1,0 +1,22 @@
+[project]
+name = "algae-early-warning-oss"
+version = "0.1.0"
+description = "OpenSource System Algae-early-warning"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.2",
+    "python-dotenv>=1.0",
+    "openpyxl>=3.1",
+    "matplotlib>=3.8",
+    "scipy>=1.11",
+    "lightgbm>=4.3",
+    "scikit-learn>=1.4",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "nbconvert>=7", "ipykernel>=6", "pip-licenses>=5"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

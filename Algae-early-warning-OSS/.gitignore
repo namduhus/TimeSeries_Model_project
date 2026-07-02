@@ -1,0 +1,14 @@
+# Secrets
+.env
+
+# Data (재생성: scripts/fetch_algae.py)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
