@@ -9,8 +9,14 @@ import pandas as pd
 
 from src.features import build_features, feature_columns
 from src.loading import load_sites, normalize
-from src.modeling import _inner_time_val, prep_X, train_lgbm
-from src.target import build_targets
+from src.modeling import (
+    _inner_time_val,
+    load_model,
+    prep_X,
+    save_production_model,
+    train_lgbm,
+)
+from src.target import DEFAULT_THRESHOLD, build_targets
 
 # 마스터에 존재하는 실제 지점 코드(clean_algae 통과용)
 _CYANO = [100, 300, 1500, 2000, 800, 50, 1200, 3000, 90, 1100, 40, 2500, 60, 1300, 80, 1400]
@@ -58,3 +64,20 @@ def test_reproducibility_fixed_seed():
     p1 = train_lgbm(X, y, tr, val).predict(X)
     p2 = train_lgbm(X, y, tr, val).predict(X)
     assert np.array_equal(p1, p2)  # deterministic=True + 고정 시드
+
+
+def test_production_model_save_load_roundtrip(tmp_path):
+    """게시 모델(제9조): 저장→로드 후 예측이 동일하고 카드 메타가 보존되는지."""
+    ds = _dataset()
+    feats = feature_columns(ds)
+    X, y = prep_X(ds, feats), ds["target"].to_numpy()
+    mp, cp = tmp_path / "algae_lgbm.txt", tmp_path / "model_card.json"
+
+    booster = save_production_model(ds, X, y, feats, {"pr_auc": 0.5},
+                                    model_path=mp, card_path=cp)
+    loaded, card = load_model(model_path=mp, card_path=cp)
+
+    assert mp.exists() and cp.exists()
+    assert np.allclose(booster.predict(X), loaded.predict(X))  # 가중치 무결 로드
+    assert card["features"] == feats
+    assert card["target_threshold_cells_per_ml"] == DEFAULT_THRESHOLD

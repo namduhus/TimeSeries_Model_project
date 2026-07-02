@@ -51,6 +51,7 @@ uv run python -m src.target
 uv run python -m src.features
 
 # 6) F6+F7 모델·검증 → reports/model_eval.md, reports/figures/모델_*.png
+#    + 게시용 모델 저장 → models/algae_lgbm.txt, models/model_card.json
 uv run python -m src.modeling
 
 # 7) F8 해석·예측 리포트 → reports/figures/shap_*.png, reports/predictions_sample.csv
@@ -58,6 +59,19 @@ uv run python -m src.reporting
 ```
 
 통합 서사: `notebooks/results.ipynb` (EDA→평가→SHAP→예측).
+
+## 게시 모델 사용
+
+전체 데이터로 학습한 예측 모델 가중치와 메타데이터(`model_card.json`: 피처·파라미터·CV지표·데이터출처)를 `models/`에 공개한다. 재학습 없이 로드해 예측할 수 있다.
+
+```python
+from src.modeling import load_model, prep_X
+from src.features import assemble_dataset
+
+booster, card = load_model()                 # models/algae_lgbm.txt + model_card.json
+X = prep_X(assemble_dataset(), card["features"])
+proba = booster.predict(X)                    # 다음 측정 시점 임계 초과 확률
+```
 
 ## 저장소 구조
 
@@ -69,11 +83,12 @@ src/
 ├─ target.py      # F5 타깃 생성 (누수 안전)
 ├─ features.py    # F4 피처 엔지니어링 (누수 안전)
 ├─ validation.py  # F7 시간순/지점 분할·지표·베이스라인
-├─ modeling.py    # F6 LightGBM 학습·CV
+├─ modeling.py    # F6 LightGBM 학습·CV + 게시용 모델 저장·로드
 ├─ reporting.py   # F8 SHAP 해석·예측 리포트
 └─ ablation.py    # 기상 피처 유무 성능 비교
 scripts/          # 취득: fetch_algae.py, fetch_weather.py, build_site_coords.py
 reference/        # 지점 마스터·좌표·ASOS 매핑 (커밋: algae_sites, algae_site_coords, kma_stations, site_station_map)
+models/           # 게시 모델 가중치·카드 (algae_lgbm.txt, model_card.json)
 tests/            # 단위·누수 회귀 테스트
 notebooks/        # EDA·결과 노트북
 reports/          # 감사·평가·라이선스 리포트, 그림

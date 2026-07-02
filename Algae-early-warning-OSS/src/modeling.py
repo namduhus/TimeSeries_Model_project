@@ -12,6 +12,9 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
@@ -20,6 +23,7 @@ from sklearn.metrics import precision_recall_curve, roc_curve
 from src.eda import setup_style
 from src.features import assemble_dataset, feature_columns
 from src.loading import REPO_ROOT
+from src.target import DEFAULT_THRESHOLD
 from src.validation import (
     evaluate,
     persistence_score,
@@ -34,6 +38,9 @@ SEED = 42
 CATEGORICAL = ["site_code", "major_basin", "station_type"]
 FIG_DIR = REPO_ROOT / "reports" / "figures"
 REPORT_PATH = REPO_ROOT / "reports" / "model_eval.md"
+MODEL_DIR = REPO_ROOT / "models"
+MODEL_PATH = MODEL_DIR / "algae_lgbm.txt"
+CARD_PATH = MODEL_DIR / "model_card.json"
 
 LGB_PARAMS = dict(
     objective="binary",
@@ -148,6 +155,75 @@ def fig_importance(model: lgb.Booster, top: int = 15):
     return fig
 
 
+def _git_commit() -> str | None:
+    """게시 모델의 재현 추적용 짧은 커밋 해시(비저장소·오류 시 None)."""
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=REPO_ROOT, capture_output=True, text=True, check=True,
+        )
+        return out.stdout.strip() or None
+    except Exception:
+        return None
+
+
+def train_production(X: pd.DataFrame, y: np.ndarray, dates: np.ndarray) -> lgb.Booster:
+    """게시용 production 모델 — 시간순 inner-val 로 best_iteration 을 찾은 뒤 **전체 데이터**로 재학습.
+
+    CV 지표(리포트)는 OOF 기준이고, 이 모델은 실제 '다음 +7일' 예측에 쓸 전량 학습본이다.
+    """
+    all_pos = np.arange(len(y))
+    itr, ival = _inner_time_val(dates, all_pos)
+    tuned = train_lgbm(X, y, itr, ival)
+    best = max(tuned.best_iteration or tuned.num_trees(), 1)
+
+    cats = [c for c in CATEGORICAL if c in X.columns]
+    pos = int(y.sum())
+    params = {**LGB_PARAMS, "scale_pos_weight": (len(y) - pos) / max(pos, 1)}
+    dall = lgb.Dataset(X, y, categorical_feature=cats, free_raw_data=False)
+    return lgb.train(params, dall, num_boost_round=best, callbacks=[lgb.log_evaluation(0)])
+
+
+def save_production_model(
+    ds: pd.DataFrame, X: pd.DataFrame, y: np.ndarray, feats: list[str], cv_metrics: dict,
+    model_path=MODEL_PATH, card_path=CARD_PATH,
+) -> lgb.Booster:
+    """전량 학습 모델을 LightGBM 네이티브 .txt 로 저장하고 모델 카드(JSON)를 남긴다.
+
+    가중치 공개(대회 제9조)와 제9조④ 모델 정보서의 근거 자료로 쓰인다.
+    """
+    booster = train_production(X, y, ds["date"].to_numpy())
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    booster.save_model(str(model_path))
+
+    card = {
+        "model": "LightGBM Booster (objective=binary)",
+        "task": "다음 측정(≈+7일) 유해남조류 세포수 관심단계 임계 초과 이진 예측",
+        "target_threshold_cells_per_ml": DEFAULT_THRESHOLD,
+        "features": feats,
+        "categorical_features": [c for c in CATEGORICAL if c in X.columns],
+        "params": {**LGB_PARAMS, "num_boost_round": booster.num_trees()},
+        "seed": SEED,
+        "n_train_rows": int(len(ds)),
+        "date_range": [str(ds["date"].min().date()), str(ds["date"].max().date())],
+        "positive_rate": round(float(y.mean()), 4),
+        "cv_metrics_time_pooled": {k: round(float(v), 4) for k, v in cv_metrics.items()},
+        "lightgbm_version": lgb.__version__,
+        "git_commit": _git_commit(),
+        "license": "MIT",
+        "data_source": "국립환경과학원 조류경보제(공공누리 제1유형) + 기상청 ASOS 일자료",
+    }
+    card_path.write_text(json.dumps(card, ensure_ascii=False, indent=2), encoding="utf-8")
+    return booster
+
+
+def load_model(model_path=MODEL_PATH, card_path=CARD_PATH) -> tuple[lgb.Booster, dict]:
+    """게시된 가중치·모델 카드를 로드(재현·서빙용)."""
+    booster = lgb.Booster(model_file=str(model_path))
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    return booster, card
+
+
 def main() -> None:
     plt.switch_backend("Agg")
     setup_style()
@@ -185,9 +261,13 @@ def main() -> None:
              "그림: reports/figures/모델_pr_curve.png, 모델_yearly_prauc.png, 모델_feature_importance.png\n"]
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
 
+    # 게시용 production 모델(전량 학습) 저장 — 가중치 공개(제9조)
+    save_production_model(ds, X, y, feats, pooled["model"])
+
     print("\n[시간 일반화]"); print(_fmt_table(res_time))
     print("\n[지점 일반화]"); print(_fmt_table(res_site))
     print(f"\n[저장] {REPORT_PATH.relative_to(REPO_ROOT)} + figures/모델_*.png")
+    print(f"[저장] {MODEL_PATH.relative_to(REPO_ROOT)} + {CARD_PATH.name} (게시 모델·카드)")
 
 
 if __name__ == "__main__":
