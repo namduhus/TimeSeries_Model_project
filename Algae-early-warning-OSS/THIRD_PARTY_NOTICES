@@ -18,9 +18,13 @@ THIRD-PARTY NOTICES
 | lightgbm      | MIT                              |
 | openpyxl      | MIT                              |
 | matplotlib    | PSF (BSD 호환)                   |
+| torch         | BSD-3-Clause                     |
+| streamlit     | Apache-2.0                       |
 
-전이 의존성 중 certifi 는 MPL-2.0(약한 파일 단위 카피레프트)이나, 수정 없이 전이
-사용하므로 MIT 배포와 양립합니다.
+torch·streamlit 은 다수의 전이 의존성을 동반하나(altair·pyarrow·protobuf·gitpython·
+tornado·tenacity·starlette·uvicorn·sympy·networkx 등) 모두 permissive(BSD/MIT/Apache)로
+확인되었습니다. 전이 의존성 중 certifi 는 MPL-2.0(약한 파일 단위 카피레프트)이나, 수정
+없이 전이 사용하므로 MIT 배포와 양립합니다.
 
 개발 전용 의존성(배포물 미포함): pytest, nbconvert, ipykernel, pip-licenses.
 

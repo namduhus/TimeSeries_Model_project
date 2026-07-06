@@ -20,10 +20,17 @@
 | lightgbm | 4.6.0 | MIT | permissive |
 | openpyxl | 3.1.5 | MIT | permissive |
 | matplotlib | 3.11.0 | PSF (BSD 호환) | permissive |
+| torch | 2.12.1 | BSD-3-Clause | permissive |
+| streamlit | 1.58.0 | Apache-2.0 | permissive |
+
+torch(확장3 딥러닝 벤치마크)·streamlit(확장4 대시보드)은 전이 의존성이 많으나 스캔 결과
+모두 permissive다: altair·starlette·uvicorn·gitpython·protobuf(BSD), tornado·tenacity·
+pyarrow·pydeck(Apache), blinker·cachetools·narwhals·pillow·toml(MIT), sympy·networkx·
+mpmath·fsspec(BSD), filelock(Unlicense).
 
 ## 카피레프트 점검
-- 전체 설치 패키지 스캔에서 **GPL/AGPL/LGPL 없음**.
-- `certifi`(MPL-2.0, requests 전이 의존): MPL은 **파일 단위 약한 카피레프트**로, 해당 파일을
+- 전체 설치 패키지 스캔에서 **GPL/AGPL/LGPL 없음** (torch·streamlit 전이 포함 재확인).
+- `certifi`(MPL-2.0, 전이 의존): MPL은 **파일 단위 약한 카피레프트**로, 해당 파일을
   수정할 때만 공개 의무가 발생한다. 우리는 **수정 없이 전이 사용**하므로 MIT 배포와 양립.
 
 ## 데이터 라이선스
