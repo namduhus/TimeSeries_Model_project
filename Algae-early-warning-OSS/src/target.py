@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from src.loading import REPO_ROOT, clean_algae, load_algae, load_sites
@@ -27,6 +28,21 @@ DEFAULT_THRESHOLD = 1000        # cells/mL (관심 단계)
 DEFAULT_MIN_GAP = 4             # 예측 시야 하한(일)
 DEFAULT_MAX_GAP = 10            # 예측 시야 상한(일)
 OUTPUT_PATH = REPO_ROOT / "data" / "interim" / "targets.csv"
+
+# 확장2 다중분류(단계) — 경보 단계 컷오프 단일 소스.
+# 단계 = 넘긴 임계 개수: <1k→0(정상), 1k~10k→1(관심), ≥10k→2(경계이상).
+# (심각 100k·대발생 1M 은 표본 극희소 0.25%/0% → 경계이상에 병합, F2 근거)
+STAGE_THRESHOLDS = (1000, 10000)
+STAGE_NAMES = ("정상", "관심", "경계이상")
+
+
+def alert_stage(cyano_cells) -> np.ndarray:
+    """세포수 → 경보 단계(0=정상, 1=관심, 2=경계이상). 순서형 라벨."""
+    arr = np.asarray(cyano_cells, dtype="float")
+    stage = np.zeros(len(arr), dtype="int8")
+    for thr in STAGE_THRESHOLDS:
+        stage += (arr >= thr).astype("int8")
+    return stage
 
 LABEL_COLUMNS = ["site_code", "date", "label_date", "horizon_days", "label_cyano", "target"]
 

@@ -8,8 +8,18 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score, precision_recall_curve, roc_auc_score
+from sklearn.metrics import (
+    average_precision_score,
+    cohen_kappa_score,
+    confusion_matrix,
+    f1_score,
+    precision_recall_curve,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import GroupKFold
+
+from src.target import STAGE_NAMES, alert_stage
 
 Split = tuple[np.ndarray, np.ndarray, object]  # (train_pos, test_pos, label)
 
@@ -66,3 +76,38 @@ def seasonal_score(ds: pd.DataFrame, train_pos: np.ndarray, test_pos: np.ndarray
     rate = pd.Series(y[train_pos]).groupby(month[train_pos]).mean()
     glob = float(y[train_pos].mean())
     return pd.Series(month[test_pos]).map(rate).fillna(glob).to_numpy()
+
+
+# --- 다중분류(경보 단계, 확장2) 지표·베이스라인 ---
+N_STAGES = len(STAGE_NAMES)
+
+
+def evaluate_stages(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    """순서형 단계 예측 지표 — 단계별 recall + macro-F1 + QWK + accuracy.
+
+    희소·순서 특성상 accuracy 단독은 부적절. QWK(이차가중 kappa)는 '한 칸 오차'를
+    '두 칸 오차'보다 덜 벌해 순서 예측에 적합하다.
+    """
+    y_true = np.asarray(y_true); y_pred = np.asarray(y_pred)
+    labels = list(range(N_STAGES))
+    rec = recall_score(y_true, y_pred, labels=labels, average=None, zero_division=0)
+    qwk = (cohen_kappa_score(y_true, y_pred, labels=labels, weights="quadratic")
+           if len(np.unique(y_true)) > 1 else float("nan"))
+    return {
+        "n": int(len(y_true)),
+        "accuracy": float((y_true == y_pred).mean()),
+        "macro_f1": float(f1_score(y_true, y_pred, labels=labels, average="macro", zero_division=0)),
+        "qwk": float(qwk),
+        "recall_per_stage": {STAGE_NAMES[i]: float(rec[i]) for i in labels},
+    }
+
+
+def confusion_stage(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+    """행=실제, 열=예측 (단계 0..N-1)."""
+    return confusion_matrix(y_true, y_pred, labels=list(range(N_STAGES)))
+
+
+def persistence_stage(ds: pd.DataFrame, test_pos: np.ndarray) -> np.ndarray:
+    """현재 세포수의 단계를 다음 단계로 예측(현 상태 유지) — 단계 베이스라인."""
+    cur = np.nan_to_num(ds["cur_cyano_cells"].to_numpy()[test_pos], nan=0.0)
+    return alert_stage(cur)
